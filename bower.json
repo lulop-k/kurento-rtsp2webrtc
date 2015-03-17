@@ -1,0 +1,29 @@
+{
+  "name": "kurento-hello-world",
+  "version": "5.1.1-dev",
+  "description": "Kurento Browser JavaScript Tutorial 1: Hello World (WebRTC in loopback)",
+  "authors": [
+    "Kurento <info@kurento.org>"
+  ],
+  "main": "index.html",
+  "moduleType": [
+    "globals"
+  ],
+  "license": "LGPL",
+  "homepage": "http://www.kurento.org/",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "~3.3.0",
+    "ekko-lightbox": "~3.2.3",
+    "adapter.js": "*",
+    "kurento-client": "5.1.0",
+    "kurento-utils": "5.1.0"
+  }
+}
