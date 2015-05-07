@@ -85,7 +85,7 @@ function onOffer(sdpOffer){
 
 			pipeline.create("PlayerEndpoint", {uri: address.value}, function(error, player){
 			  if(error) return onError(error);
-			  
+
 			  pipeline.create("WebRtcEndpoint", function(error, webRtc){
 				if(error) return onError(error);
 
@@ -95,17 +95,25 @@ function onOffer(sdpOffer){
 					webRtcPeer.processSdpAnswer(sdpAnswer);
 				});
 
-				player.connect(webRtc, function(error){
-					if(error) return onError(error);
+        pipeline.create('GStreamerFilter', {command : 'capsfilter caps=video/x-raw,framerate=15/1', filterType: "VIDEO"}, function(error, gstFilter){
+          if(error) return onError(error);
 
-					console.log("PlayerEndpoint-->WebRtcEndpoint connection established");
-					
-					player.play(function(error){
-					  if(error) return onError(error);
+          player.connect(gstFilter, function(error){
+            if(error) return onError(error);
 
-					  console.log("Player playing ...");
-					});
-				});
+            gstFilter.connect(webRtc, function(error){
+              if(error) return onError(error);
+
+              console.log("PlayerEndpoint-->WebRtcEndpoint connection established");
+
+              player.play(function(error){
+                if(error) return onError(error);
+
+                console.log("Player playing ...");
+              });
+          });
+  				});
+        });
 			});
 			});
 		});
