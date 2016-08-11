@@ -22,7 +22,7 @@
   "dependencies": {
     "bootstrap": "~3.3.0",
     "ekko-lightbox": "~3.2.3",
-    "adapter.js": "*",
+    "adapter.js": "v0.2.9",
     "kurento-client": "master",
     "kurento-utils": "master"
   }
