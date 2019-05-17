@@ -225,13 +225,6 @@ window.addEventListener('load', function(){
       if(error) return onError(error)
 
       this.generateOffer(onPlayOffer)
-	    
-      webRtcPeer.peerConnection.addEventListener('iceconnectionstatechange', function(event){
-          if(webRtcPeer && webRtcPeer.peerConnection){
-            console.log("oniceconnectionstatechange -> " + webRtcPeer.peerConnection.iceConnectionState);
-            console.log('icegatheringstate -> ' + webRtcPeer.peerConnection.iceGatheringState);
-          }
-        });
     });
   }
   
