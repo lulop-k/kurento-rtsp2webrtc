@@ -260,22 +260,22 @@ window.addEventListener('load', function(){
 
         player.on('EndOfStream', stop);
 
-        //yield player.connect(webRtc);
+      yield player.connect(webRtc);
 	
-	player.connect(webRtcEndpoint, function(error){
-  					if(error) return onError(error);
-
-  					console.log("RecorderEndpoint-->PlayerEndpoint connection established");
-
-  					player.play(function(error){
-  					  if(error) return onError(error);
-
-  					  console.log("Player playing ...");
-  					});
-
-        var sdpAnswer = yield webRtc.processOffer(sdpOffer);
-        webRtc.gatherCandidates(onError);
-        webRtcPeer.processAnswer(sdpAnswer);
+//	player.connect(webRtcEndpoint, function(error){
+//  					if(error) return onError(error);
+//
+//  					console.log("RecorderEndpoint-->PlayerEndpoint connection established");
+//
+//  					player.play(function(error){
+//  					  if(error) return onError(error);
+//
+//  					  console.log("Player playing ...");
+//  					});
+//
+//        var sdpAnswer = yield webRtc.processOffer(sdpOffer);
+//        webRtc.gatherCandidates(onError);
+//        webRtcPeer.processAnswer(sdpAnswer);
 
         yield player.play()
 
