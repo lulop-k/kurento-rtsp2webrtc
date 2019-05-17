@@ -249,7 +249,7 @@ window.addEventListener('load', function(){
 //	pipeline.create("WebRtcEndpoint", function(error, webRtcEndpoint){
 //  				if(error) return onError(error);
 
-//        var webRtc = yield pipeline.create('WebRtcEndpoint');
+        var webRtc = yield pipeline.create('WebRtcEndpoint');
 //	setIceCandidateCallbacks(webRtcPeer, webRtcEndpoint, onError);
         setIceCandidateCallbacks(webRtcPeer, webRtc, onError)
 		
