@@ -112,81 +112,46 @@ window.addEventListener('load', function(){
       console.log("Use freeice")
     }
     
-    webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(options,
+    webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options,
       function(error){
         if(error){
           return console.error(error);
         }
-        webRtcPeer.generateOffer(onOffer);
-        webRtcPeer.peerConnection.addEventListener('iceconnectionstatechange', function(event){
-          if(webRtcPeer && webRtcPeer.peerConnection){
-            console.log("oniceconnectionstatechange -> " + webRtcPeer.peerConnection.iceConnectionState);
-            console.log('icegatheringstate -> ' + webRtcPeer.peerConnection.iceGatheringState);
-          }
-        });
+        this.generateOffer(onOffer);
     });
   }
 
   function onOffer(error, sdpOffer){
     if(error) return onError(error);
 
-  	kurentoClient(args.ws_uri, function(error, kurentoClient) {
-  		if(error) return onError(error);
+    co(function*(){
+        try{
+          if(!client)
+            client = yield kurentoClient(args.ws_uri);
 
-  		kurentoClient.create("MediaPipeline", function(error, p) {
-  			if(error) return onError(error);
+          pipeline = yield client.create('MediaPipeline');
 
-  			pipeline = p;
+          var webRtc = yield pipeline.create('WebRtcEndpoint');
+          setIceCandidateCallbacks(webRtcPeer, webRtc, onError)
 
-  			pipeline.create("PlayerEndpoint", {uri: address.value}, function(error, player){
-  			  if(error) return onError(error);
+          var recorder = yield pipeline.create('RecorderEndpoint', {uri: args.file_uri});
 
-  			  pipeline.create("WebRtcEndpoint", function(error, webRtcEndpoint){
-  				if(error) return onError(error);
+          yield webRtc.connect(recorder);
+          yield webRtc.connect(webRtc);
 
-          setIceCandidateCallbacks(webRtcEndpoint, webRtcPeer, onError);
-				  
-  			  pipeline.create("RecorderEndpoint", {uri: args.file_uri}, function(error, recorder){
-  				if(error) return onError(error);
+          yield recorder.record();
 
-  				webRtcEndpoint.processOffer(sdpOffer, function(error, sdpAnswer){
-  					if(error) return onError(error);
+          var sdpAnswer = yield webRtc.processOffer(sdpOffer);
+          webRtc.gatherCandidates(onError);
+          webRtcPeer.processAnswer(sdpAnswer)
 
-            webRtcEndpoint.gatherCandidates(onError);
+          setStatus(CALLING);
 
-  					webRtcPeer.processAnswer(sdpAnswer);
-  				});
-
-  				player.connect(webRtcEndpoint, function(error){
-  					if(error) return onError(error);
-
-  					console.log("PlayerEndpoint-->WebRtcEndpoint connection established");
-
-  					player.play(function(error){
-  					  if(error) return onError(error);
-
-  					  console.log("Player playing ...");
-					  setStatus(PLAYING)
-  					});
-				        webRtcEndpoint.connect(recorder, function(error){
-  					  if(error) return onError(error);
-
-  					  console.log("WebRtcEndpoint-->RecorderEndpoint connection established");
-
-  					  recorder.record()(function(error){
-  					    if(error) return onError(error);
-
-  					    console.log("Player Recording ...");
-					    setStatus(CALLING);
-  					  });
-  				     });
-  				});
-			  });
-  			});
-  			});
-  		});
-  	});
-  }
+        } catch(e){
+          onError(e);
+        }
+      })();
+    }
 
   function stop() {
     address.disabled = false;
