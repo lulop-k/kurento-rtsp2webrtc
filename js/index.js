@@ -112,18 +112,18 @@ window.addEventListener('load', function(){
       console.log("Use freeice")
     }
     
-    webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(options,
+    webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options,
       function(error){
         if(error){
           return console.error(error);
         }
         webRtcPeer.generateOffer(onOffer);
-        webRtcPeer.peerConnection.addEventListener('iceconnectionstatechange', function(event){
-          if(webRtcPeer && webRtcPeer.peerConnection){
-            console.log("oniceconnectionstatechange -> " + webRtcPeer.peerConnection.iceConnectionState);
-            console.log('icegatheringstate -> ' + webRtcPeer.peerConnection.iceGatheringState);
-          }
-        });
+        //webRtcPeer.peerConnection.addEventListener('iceconnectionstatechange', function(event){
+          //if(webRtcPeer && webRtcPeer.peerConnection){
+            //console.log("oniceconnectionstatechange -> " + webRtcPeer.peerConnection.iceConnectionState);
+            //console.log('icegatheringstate -> ' + webRtcPeer.peerConnection.iceGatheringState);
+          //}
+        //});
     });
   }
 
