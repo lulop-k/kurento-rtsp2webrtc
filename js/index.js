@@ -280,6 +280,11 @@ window.addEventListener('load', function(){
         yield player.play()
 
         setStatus(PLAYING)
+	});
+	});
+	});
+	});
+	});
       }
       catch(e)
       {
