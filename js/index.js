@@ -253,6 +253,7 @@ window.addEventListener('load', function(){
 	console.log("before setIceCandidateCallbacks ------")
 //	setIceCandidateCallbacks(webRtcPeer, webRtcEndpoint, onError);
         setIceCandidateCallbacks(webRtc, webRtcPeer, onError)
+	console.log("Return from setIceCandidateCallbacks ------")
 		
 //	pipeline.create("PlayerEndpoint", {uri: address.value}, function(error, player){
 //  			  if(error) return onError(error);
@@ -260,7 +261,7 @@ window.addEventListener('load', function(){
         var player = yield pipeline.create('PlayerEndpoint', {uri : args.file_uri});
 
         player.on('EndOfStream', stop);
-
+      console.log("Player connect ------")
       yield player.connect(webRtc);
 	
 //	player.connect(webRtcEndpoint, function(error){
@@ -274,11 +275,16 @@ window.addEventListener('load', function(){
 //  					  console.log("Player playing ...");
 //  					});
 //
+	console.log("processOffer ------")
         var sdpAnswer = yield webRtc.processOffer(sdpOffer);
+	console.log("gatherCandidates ------")
         webRtc.gatherCandidates(onError);
+	console.log("processAnswer ------")
         webRtcPeer.processAnswer(sdpAnswer);
 
+	console.log("player.play ------")
         yield player.play()
+	console.log("Playing video ------")
 
         setStatus(PLAYING)
 //	});
