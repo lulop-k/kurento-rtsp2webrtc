@@ -101,6 +101,16 @@ window.addEventListener('load', function(){
     var options = {
       remoteVideo : videoOutput
     };
+	  
+    if (args.ice_servers) {
+      console.log("Use ICE servers: " + args.ice_servers);
+      options.configuration = {
+        iceServers : JSON.parse(args.ice_servers)
+      };
+    } else {
+      console.log("Use freeice")
+    }
+    
     webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(options,
       function(error){
         if(error){
@@ -134,6 +144,9 @@ window.addEventListener('load', function(){
   				if(error) return onError(error);
 
           setIceCandidateCallbacks(webRtcEndpoint, webRtcPeer, onError);
+				  
+  			  pipeline.create("RecorderEndpoint", {uri: args.file_uri}, function(error, recorder){
+  				if(error) return onError(error);
 
   				webRtcEndpoint.processOffer(sdpOffer, function(error, sdpAnswer){
   					if(error) return onError(error);
@@ -154,7 +167,20 @@ window.addEventListener('load', function(){
   					  console.log("Player playing ...");
 					  setStatus(PLAYING)
   					});
+				        webRtcEndpoint.connect(recorder, function(error){
+  					  if(error) return onError(error);
+
+  					  console.log("WebRtcEndpoint-->RecorderEndpoint connection established");
+
+  					  recorder.record()(function(error){
+  					    if(error) return onError(error);
+
+  					    console.log("Player Recording ...");
+					    setStatus(CALLING);
+  					  });
+  				     });
   				});
+			  });
   			});
   			});
   		});
