@@ -123,11 +123,67 @@ window.addEventListener('load', function(){
 
   function onOffer(error, sdpOffer){
     if(error) return onError(error);
+    
+  	kurentoClient(args.ws_uri, function(error, kurentoClient) {
+  		if(error) return onError(error);
+
+  		kurentoClient.create("MediaPipeline", function(error, p) {
+  			if(error) return onError(error);
+
+  			pipeline = p;
+
+  			pipeline.create("PlayerEndpoint", {uri: address.value}, function(error, player){
+  			  if(error) return onError(error);
+
+  			  pipeline.create("WebRtcEndpoint", function(error, webRtcEndpoint){
+  				if(error) return onError(error);
+
+          setIceCandidateCallbacks(webRtcEndpoint, webRtcPeer, onError);
+				  
+  			  pipeline.create("RecorderEndpoint", {uri: args.file_uri}, function(error, recorder){
+  				if(error) return onError(error);
+
+  				webRtcEndpoint.processOffer(sdpOffer, function(error, sdpAnswer){
+  					if(error) return onError(error);
+
+            webRtcEndpoint.gatherCandidates(onError);
+
+  					webRtcPeer.processAnswer(sdpAnswer);
+  				});
+
+  				player.connect(webRtcEndpoint, function(error){
+  					if(error) return onError(error);
+
+  					console.log("PlayerEndpoint-->WebRtcEndpoint connection established");
+
+  					player.play(function(error){
+  					  if(error) return onError(error);
+
+  					  console.log("Player playing ...");
+					  setStatus(PLAYING)
+  					});
+				        webRtcEndpoint.connect(recorder, function(error){
+  					  if(error) return onError(error);
+
+  					  console.log("WebRtcEndpoint-->RecorderEndpoint connection established");
+
+  					  recorder.record()(function(error){
+  					    if(error) return onError(error);
+
+  					    console.log("Player Recording ...");
+					    setStatus(CALLING);
+  					  });
+  				     });
+  				});
+			  });
+  			});
+  			});
+  		});
+  	});
 
     co(function*(){
         try{
-          if(!client)
-            client = yield kurentoClient(args.ws_uri);
+          client = yield kurentoClient(args.ws_uri);
 
           pipeline = yield client.create('MediaPipeline');
 
