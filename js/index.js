@@ -28,6 +28,7 @@ var args = getopts(location.search,
   default:
   {
     ws_uri: 'ws://' + location.hostname + ':8888/kurento',
+    file_uri: 'file:///tmp/kurento-hello-world-recording.webm',
     ice_servers: undefined
   }
 });
@@ -77,7 +78,7 @@ window.addEventListener('load', function(){
   console = new Console('console', console);
 	var videoOutput = document.getElementById('videoOutput');
 	var address = document.getElementById('address');
-	address.value = 'http://files.kurento.org/video/puerta-del-sol.ts';
+	address.value = 'rtsp://172.30.65.235:554/11';
   var pipeline;
   var webRtcPeer;
 
