@@ -32,6 +32,39 @@ var args = getopts(location.search,
   }
 });
 
+const IDLE = 0;
+const DISABLED = 1;
+const CALLING = 2;
+const PLAYING = 3;
+
+function setStatus(nextState){
+  switch(nextState){
+    case IDLE:
+      $('#start').attr('disabled', false)
+      $('#stop').attr('disabled',  true)
+      $('#play').attr('disabled',  false)
+      break;
+
+    case CALLING:
+      $('#start').attr('disabled', true)
+      $('#stop').attr('disabled',  false)
+      $('#play').attr('disabled',  true)
+      break;
+
+    case PLAYING:
+      $('#start').attr('disabled', true)
+      $('#stop').attr('disabled',  false)
+      $('#play').attr('disabled',  true)
+      break;
+
+    case DISABLED:
+      $('#start').attr('disabled', true)
+      $('#stop').attr('disabled',  true)
+      $('#play').attr('disabled',  true)
+      break;
+  }
+}
+
 if (args.ice_servers) {
   console.log("Use ICE servers: " + args.ice_servers);
   kurentoUtils.WebRtcPeer.prototype.server.iceServers = JSON.parse(args.ice_servers);
@@ -54,7 +87,11 @@ window.addEventListener('load', function(){
   stopButton = document.getElementById('stop');
   stopButton.addEventListener('click', stop);
 
+  playButton = document.getElementById('play');
+  playButton.addEventListener('click', play);
+
   function start() {
+	setStatus(DISABLED);
   	if(!address.value){
   	  window.alert("You must set the video source URL first");
   	  return;
@@ -115,6 +152,7 @@ window.addEventListener('load', function(){
   					  if(error) return onError(error);
 
   					  console.log("Player playing ...");
+					  setStatus(PLAYING)
   					});
   				});
   			});
@@ -134,7 +172,69 @@ window.addEventListener('load', function(){
       pipeline = null;
     }
     hideSpinner(videoOutput);
+    setStatus(IDLE);
   }
+  
+  function play(){
+    setStatus(DISABLED)
+    showSpinner(videoOutput);
+
+    var options =
+    {
+      remoteVideo: videoOutput
+    }
+
+    if (args.ice_servers) {
+      console.log("Use ICE servers: " + args.ice_servers);
+      options.configuration = {
+        iceServers : JSON.parse(args.ice_servers)
+      };
+    } else {
+      console.log("Use freeice")
+    }
+
+    webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(options, function(error)
+    {
+      if(error) return onError(error)
+
+      this.generateOffer(onPlayOffer)
+    });
+  }
+  
+  function onPlayOffer(error, sdpOffer){
+    if(error) return onError(error);
+
+    co(function*(){
+      try{
+        if(!client) client = yield kurentoClient(args.ws_uri);
+
+        pipeline = yield client.create('MediaPipeline');
+
+        var webRtc = yield pipeline.create('WebRtcEndpoint');
+        setIceCandidateCallbacks(webRtcPeer, webRtc, onError)
+
+        var player = yield pipeline.create('PlayerEndpoint', {uri : args.file_uri});
+
+        player.on('EndOfStream', stop);
+
+        yield player.connect(webRtc);
+
+        var sdpAnswer = yield webRtc.processOffer(sdpOffer);
+        webRtc.gatherCandidates(onError);
+        webRtcPeer.processAnswer(sdpAnswer);
+
+        yield player.play()
+
+        setStatus(PLAYING)
+      }
+      catch(e)
+      {
+        onError(e);
+      }
+    })();
+  }
+
+  setStatus(IDLE);
 
 });
 
