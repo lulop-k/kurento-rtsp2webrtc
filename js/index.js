@@ -234,29 +234,29 @@ window.addEventListener('load', function(){
     co(function*(){
       try{
 	      
-	kurentoClient(args.ws_uri, function(error, kurentoClient) {
-  		if(error) return onError(error);
+//	kurentoClient(args.ws_uri, function(error, kurentoClient) {
+//  		if(error) return onError(error);
+//		
+//	kurentoClient.create("MediaPipeline", function(error, p) {
+//  			if(error) return onError(error);
 		
-	kurentoClient.create("MediaPipeline", function(error, p) {
-  			if(error) return onError(error);
-		
-        //if(!client) client = yield kurentoClient(args.ws_uri);
+        var client = yield kurentoClient(args.ws_uri);
 
-        //pipeline = yield client.create('MediaPipeline');
+        pipeline = yield client.create('MediaPipeline');
 	
-	pipeline = p;
+//	pipeline = p;
 	
-	pipeline.create("WebRtcEndpoint", function(error, webRtcEndpoint){
-  				if(error) return onError(error);
+//	pipeline.create("WebRtcEndpoint", function(error, webRtcEndpoint){
+//  				if(error) return onError(error);
 
-        //var webRtc = yield pipeline.create('WebRtcEndpoint');
-	setIceCandidateCallbacks(webRtcPeer, webRtcEndpoint, onError);
-        //setIceCandidateCallbacks(webRtcPeer, webRtc, onError)
+//        var webRtc = yield pipeline.create('WebRtcEndpoint');
+//	setIceCandidateCallbacks(webRtcPeer, webRtcEndpoint, onError);
+        setIceCandidateCallbacks(webRtcPeer, webRtc, onError)
 		
-	pipeline.create("PlayerEndpoint", {uri: address.value}, function(error, player){
-  			  if(error) return onError(error);
+//	pipeline.create("PlayerEndpoint", {uri: address.value}, function(error, player){
+//  			  if(error) return onError(error);
 
-        //var player = yield pipeline.create('PlayerEndpoint', {uri : args.file_uri});
+        var player = yield pipeline.create('PlayerEndpoint', {uri : args.file_uri});
 
         player.on('EndOfStream', stop);
 
@@ -273,18 +273,18 @@ window.addEventListener('load', function(){
 //  					  console.log("Player playing ...");
 //  					});
 //
-//        var sdpAnswer = yield webRtc.processOffer(sdpOffer);
-//        webRtc.gatherCandidates(onError);
-//        webRtcPeer.processAnswer(sdpAnswer);
+        var sdpAnswer = yield webRtc.processOffer(sdpOffer);
+        webRtc.gatherCandidates(onError);
+        webRtcPeer.processAnswer(sdpAnswer);
 
         yield player.play()
 
         setStatus(PLAYING)
-	});
-	});
-	});
-	});
-	});
+//	});
+//	});
+//	});
+//	});
+//	});
       }
       catch(e)
       {
