@@ -225,6 +225,13 @@ window.addEventListener('load', function(){
       if(error) return onError(error)
 
       this.generateOffer(onPlayOffer)
+	    
+      webRtcPeer.peerConnection.addEventListener('iceconnectionstatechange', function(event){
+          if(webRtcPeer && webRtcPeer.peerConnection){
+            console.log("oniceconnectionstatechange -> " + webRtcPeer.peerConnection.iceConnectionState);
+            console.log('icegatheringstate -> ' + webRtcPeer.peerConnection.iceGatheringState);
+          }
+        });
     });
   }
   
@@ -250,8 +257,9 @@ window.addEventListener('load', function(){
 //  				if(error) return onError(error);
 
         var webRtc = yield pipeline.create('WebRtcEndpoint');
+	console.log("before setIceCandidateCallbacks ------")
 //	setIceCandidateCallbacks(webRtcPeer, webRtcEndpoint, onError);
-        setIceCandidateCallbacks(webRtcPeer, webRtc, onError)
+        setIceCandidateCallbacks(webRtc, webRtcPeer, onError)
 		
 //	pipeline.create("PlayerEndpoint", {uri: address.value}, function(error, player){
 //  			  if(error) return onError(error);
