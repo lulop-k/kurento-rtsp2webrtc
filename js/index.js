@@ -112,7 +112,7 @@ window.addEventListener('load', function(){
       console.log("Use freeice")
     }
     
-    webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options,
+    webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(options,
       function(error){
         if(error){
           return console.error(error);
