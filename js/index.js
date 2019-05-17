@@ -118,12 +118,12 @@ window.addEventListener('load', function(){
           return console.error(error);
         }
         webRtcPeer.generateOffer(onOffer);
-        //webRtcPeer.peerConnection.addEventListener('iceconnectionstatechange', function(event){
-          //if(webRtcPeer && webRtcPeer.peerConnection){
-            //console.log("oniceconnectionstatechange -> " + webRtcPeer.peerConnection.iceConnectionState);
-            //console.log('icegatheringstate -> ' + webRtcPeer.peerConnection.iceGatheringState);
-          //}
-        //});
+        webRtcPeer.peerConnection.addEventListener('iceconnectionstatechange', function(event){
+          if(webRtcPeer && webRtcPeer.peerConnection){
+            console.log("oniceconnectionstatechange -> " + webRtcPeer.peerConnection.iceConnectionState);
+            console.log('icegatheringstate -> ' + webRtcPeer.peerConnection.iceGatheringState);
+          }
+        });
     });
   }
 
