@@ -76,9 +76,11 @@ if (args.ice_servers) {
 
 window.addEventListener('load', function(){
   console = new Console('console', console);
+	console.log("In load")
 	var videoOutput = document.getElementById('videoOutput');
 	var address = document.getElementById('address');
 	address.value = 'rtsp://172.30.65.235:554/11';
+	console.log("In load address.value: " + address.value)
   var pipeline;
   var webRtcPeer;
 
