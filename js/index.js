@@ -170,9 +170,6 @@ window.addEventListener('load', function(){
 			  });
   			});
   		});
-  	});
-
-    co(function*(){
         try{
           client = yield kurentoClient(args.ws_uri);
 
@@ -197,7 +194,6 @@ window.addEventListener('load', function(){
         } catch(e){
           onError(e);
         }
-      })();
     }
 
   function stop() {
