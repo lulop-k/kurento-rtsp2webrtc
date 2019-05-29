@@ -112,12 +112,18 @@ window.addEventListener('load', function(){
       console.log("Use freeice")
     }
     
-    webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerSendrecv(options,
+    webRtcPeer = kurentoUtils.WebRtcPeer.WebRtcPeerRecvonly(options,
       function(error){
         if(error){
           return console.error(error);
         }
-        this.generateOffer(onOffer);
+	webRtcPeer.generateOffer(onOffer);
+        webRtcPeer.peerConnection.addEventListener('iceconnectionstatechange', function(event){
+          if(webRtcPeer && webRtcPeer.peerConnection){
+            console.log("oniceconnectionstatechange -> " + webRtcPeer.peerConnection.iceConnectionState);
+            console.log('icegatheringstate -> ' + webRtcPeer.peerConnection.iceGatheringState);
+          }
+        });
     });
   }
 
@@ -139,9 +145,6 @@ window.addEventListener('load', function(){
   				if(error) return onError(error);
 
           setIceCandidateCallbacks(webRtcEndpoint, webRtcPeer, onError);
-				  
-  			  pipeline.create("RecorderEndpoint", {uri: args.file_uri}, function(error, recorder){
-  				if(error) return onError(error);
 
   				webRtcEndpoint.processOffer(sdpOffer, function(error, sdpAnswer){
   					if(error) return onError(error);
@@ -162,21 +165,9 @@ window.addEventListener('load', function(){
   					  console.log("Player playing ...");
 					  setStatus(PLAYING)
   					});
-				        webRtcEndpoint.connect(recorder, function(error){
-  					  if(error) return onError(error);
-
-  					  console.log("WebRtcEndpoint-->RecorderEndpoint connection established");
-
-  					  recorder.record()(function(error){
-  					    if(error) return onError(error);
-
-  					    console.log("Player Recording ...");
-					    setStatus(CALLING);
-  					  });
   				     });
   				});
 			  });
-  			});
   			});
   		});
   	});
@@ -254,48 +245,22 @@ window.addEventListener('load', function(){
 
     co(function*(){
       try{
-	      
-//	kurentoClient(args.ws_uri, function(error, kurentoClient) {
-//  		if(error) return onError(error);
-//		
-//	kurentoClient.create("MediaPipeline", function(error, p) {
-//  			if(error) return onError(error);
 		
         var client = yield kurentoClient(args.ws_uri);
 
         pipeline = yield client.create('MediaPipeline');
-	
-//	pipeline = p;
-	
-//	pipeline.create("WebRtcEndpoint", function(error, webRtcEndpoint){
-//  				if(error) return onError(error);
 
         var webRtc = yield pipeline.create('WebRtcEndpoint');
 	console.log("before setIceCandidateCallbacks ------")
-//	setIceCandidateCallbacks(webRtcPeer, webRtcEndpoint, onError);
         setIceCandidateCallbacks(webRtc, webRtcPeer, onError)
 	console.log("Return from setIceCandidateCallbacks ------")
 		
-//	pipeline.create("PlayerEndpoint", {uri: address.value}, function(error, player){
-//  			  if(error) return onError(error);
-
         var player = yield pipeline.create('PlayerEndpoint', {uri : args.file_uri});
 
         player.on('EndOfStream', stop);
       console.log("Player connect ------")
       yield player.connect(webRtc);
 	
-//	player.connect(webRtcEndpoint, function(error){
-//  					if(error) return onError(error);
-//
-//  					console.log("RecorderEndpoint-->PlayerEndpoint connection established");
-//
-//  					player.play(function(error){
-//  					  if(error) return onError(error);
-//
-//  					  console.log("Player playing ...");
-//  					});
-//
 	console.log("processOffer ------")
         var sdpAnswer = yield webRtc.processOffer(sdpOffer);
 	console.log("gatherCandidates ------")
@@ -308,11 +273,6 @@ window.addEventListener('load', function(){
 	console.log("Playing video ------")
 
         setStatus(PLAYING)
-//	});
-//	});
-//	});
-//	});
-//	});
       }
       catch(e)
       {
@@ -320,10 +280,6 @@ window.addEventListener('load', function(){
       }
     })();
   }
-
-  setStatus(IDLE);
-
-});
 
 function setIceCandidateCallbacks(webRtcEndpoint, webRtcPeer, onError){
   webRtcPeer.on('icecandidate', function(candidate){
