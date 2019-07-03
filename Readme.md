@@ -57,10 +57,10 @@ add them to the query string in the same way you would add them to the Node.js
 executable on your command line:
 
 ```
-http://example.com/index.html?ws_url=ws://example.org/kurento
+http://example.com/index.html?ws_uri=ws://example.org/kurento
 ```
 
-All the demos accept the *ws_url* parameter to set the WebSocket Kurento
+All the demos accept the *ws_uri* parameter to set the WebSocket Kurento
 MediaServer endpoint, other parameters specific to each demo can be found at the
 top of their index.js files.
 
